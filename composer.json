@@ -1,0 +1,23 @@
+{
+    "name": "FileManager",
+    "description": "FileManager plugin for CakePHP",
+    "type": "cakephp-plugin",
+    "require": {
+        "php": ">=7.2",
+        "cakephp/cakephp": "4.3.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "FileManager\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "FileManager\\Test\\": "tests/",
+            "Cake\\Test\\": "vendor/cakephp/cakephp/tests/"
+        }
+    }
+}
