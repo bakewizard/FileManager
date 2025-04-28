@@ -69,7 +69,7 @@ class ManagerController extends AppController
             }
 
             $file['name'] = basename($path);
-            $file['url'] = '/' . basename($this->fullPath) . '/' . $path;
+            $file['url'] = $this->basePath . $path;
             $file['size'] = $this->storage->fileSize($path);
             $file['mime'] = $this->storage->mimeType($path);
 
@@ -169,22 +169,38 @@ class ManagerController extends AppController
      */
     public function upload($path = null)
     {
-        $files = $this->request->getUploadedFiles()['files'];
+        $files = $this->request->getUploadedFiles()['files'] ?? [];
 
-        if (count($files) === 1 && $files[0]->getError() === \UPLOAD_ERR_NO_FILE) {
-            $this->Flash->error(__('No file was uploaded'));
+        if (empty($files) || (count($files) === 1 && $files[0]->getError() === \UPLOAD_ERR_NO_FILE)) {
+            $this->Flash->error(__('No file was uploaded.'));
             return $this->redirect(['action' => 'index', $path]);
         }
 
         if ($this->request->is('post')) {
+            $success = true;
+
             foreach ($files as $file) {
-                $this->storage->writeStream($path . '/' . $file->getClientFilename(), $file->getStream()->detach());
+                try {
+                    $filename = $file->getClientFilename();
+                    $stream = $file->getStream()->detach();
+                    $this->storage->writeStream($path . '/' . $filename, $stream);
+                } catch (\League\Flysystem\FilesystemException $e) {
+                    $this->Flash->error(__(
+                                    'Failed to upload "{0}": {1}',
+                                    $file->getClientFilename(),
+                                    $e->getMessage()
+                            ));
+                    $success = false;
+                    // Optionally: continue uploading other files or break here
+                }
             }
 
-            if (count($files) > 1) {
-                $this->Flash->success(__('The files have been saved'));
-            } else {
-                $this->Flash->success(__('The file has been saved'));
+            if ($success) {
+                if (count($files) > 1) {
+                    $this->Flash->success(__('All files have been uploaded successfully.'));
+                } else {
+                    $this->Flash->success(__('The file has been uploaded successfully.'));
+                }
             }
 
             return $this->redirect(['action' => 'index', $path]);

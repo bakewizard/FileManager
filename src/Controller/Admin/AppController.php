@@ -17,6 +17,7 @@ class AppController extends BaseController
 {
 
     protected ?Filesystem $storage = null;
+    protected ?string $basePath = null;
     protected ?string $fullPath = null;
 
     #[\Override]
@@ -24,7 +25,10 @@ class AppController extends BaseController
     {
         parent::beforeFilter($event);
 
-        $this->fullPath = Configure::read('FileManager.basePath', WWW_ROOT);
+        $path = Configure::read('FileManager.basePath', '/');
+        $this->basePath = '/' . ($path !== '/' ? $path . '/' : '');
+        $this->fullPath = WWW_ROOT . str_replace('/', DS, trim($this->basePath, '/')) . DS;
+
         try {
             $this->storage = $this->getStorage($this->fullPath);
         } catch (FilesystemException $e) {

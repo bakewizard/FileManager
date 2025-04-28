@@ -39,8 +39,12 @@ class ConfigForm extends Form
         return $validator->scalar('basePath')
                         ->allowEmptyString('basePath')
                         ->add('basePath', 'validFolderChars', [
-                            'rule' => ['custom', '/^(?!\/)(?!.*\.\.)([A-Za-z0-9_\-\/\.]+)$/'],
-                            'message' => 'Only letters, numbers, dashes, underscores, slashes, and dots are allowed. No backslashes, "..", or leading slash.'
+                            'rule' => ['custom', '/^[A-Za-z0-9_\-\/\.]+$/'],
+                            'message' => 'Only letters, numbers, dashes, underscores, slashes, and dots are allowed.'
+                        ])
+                        ->add('basePath', 'noLeadingTrailingSlash', [
+                            'rule' => ['custom', '/^(?!\/)(?!.*\/$).*$/'],
+                            'message' => 'No leading or trailing slashes are allowed.'
         ]);
     }
 
