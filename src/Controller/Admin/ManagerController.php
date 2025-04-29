@@ -121,10 +121,13 @@ class ManagerController extends AppController
         try {
             if ($this->storage->fileExists($path)) {
                 $this->storage->delete($path);
+                $this->Flash->success(__('File deleted successfully'));
             } elseif ($this->storage->directoryExists($path)) {
                 $this->storage->deleteDirectory($path);
+                $this->Flash->success(__('Folder deleted successfully'));
+            } else {
+                $this->Flash->error(__('File or directory not found.'));
             }
-            $this->Flash->success(__('Deleted successfully'));
         } catch (FilesystemException $e) {
             $this->Flash->error($e->getMessage());
         }
@@ -142,16 +145,17 @@ class ManagerController extends AppController
         $name = basename($path);
 
         if ($this->request->is('post')) {
-            if (empty($this->request->getData('name'))) {
-                $this->Flash->error(__('File name is empty'));
+            $newName = $this->request->getData('name');
+            if (empty($newName)) {
+                $this->Flash->error(__('File name cannot be empty'));
                 return $this->redirect(['action' => 'index', dirname($path)]);
             }
 
-            $newPath = dirname($path) . '/' . $this->request->getData('name');
+            $newPath = dirname($path) . '/' . $newName;
 
             try {
                 $this->storage->move($path, $newPath);
-                $this->Flash->success(__('File was renamed'));
+                $this->Flash->success(__('"{0}" was renamed to "{1}"', $name, $newName));
             } catch (FilesystemException $e) {
                 $this->Flash->error($e->getMessage());
             }
@@ -178,28 +182,26 @@ class ManagerController extends AppController
 
         if ($this->request->is('post')) {
             $success = true;
+            $uploadedFiles = [];
 
             foreach ($files as $file) {
                 try {
                     $filename = $file->getClientFilename();
                     $stream = $file->getStream()->detach();
                     $this->storage->writeStream($path . '/' . $filename, $stream);
-                } catch (\League\Flysystem\FilesystemException $e) {
-                    $this->Flash->error(__(
-                                    'Failed to upload "{0}": {1}',
-                                    $file->getClientFilename(),
-                                    $e->getMessage()
-                            ));
+                    $uploadedFiles[] = $filename;
+                } catch (FilesystemException $e) {
+                    $this->Flash->error(__('Failed to upload "{0}": {1}', $file->getClientFilename(), $e->getMessage()));
                     $success = false;
                     // Optionally: continue uploading other files or break here
                 }
             }
 
             if ($success) {
-                if (count($files) > 1) {
-                    $this->Flash->success(__('All files have been uploaded successfully.'));
-                } else {
-                    $this->Flash->success(__('The file has been uploaded successfully.'));
+                if (count($uploadedFiles) > 1) {
+                    $this->Flash->success(__('The following files have been uploaded successfully: {0}', implode(', ', $uploadedFiles)));
+                } elseif (!empty($uploadedFiles)) {
+                    $this->Flash->success(__('"{0}" has been uploaded successfully.', $uploadedFiles[0]));
                 }
             }
 
