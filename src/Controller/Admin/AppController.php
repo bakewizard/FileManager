@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace FileManager\Controller\Admin;
@@ -7,20 +6,23 @@ namespace FileManager\Controller\Admin;
 use App\Controller\Admin\AppController as BaseController;
 use Cake\Core\Configure;
 use Cake\Event\EventInterface;
-use Cake\Routing\Router;
 use Cake\Http\Response;
 use Cake\Http\ServerRequest;
+use Cake\Routing\Router;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemException;
+use Override;
 
 class AppController extends BaseController
 {
-
     protected ?Filesystem $storage = null;
     protected ?string $basePath = null;
     protected ?string $fullPath = null;
 
-    #[\Override]
+    /**
+     * @inheritDoc
+     */
+    #[Override]
     public function beforeFilter(EventInterface $event)
     {
         parent::beforeFilter($event);
@@ -37,7 +39,10 @@ class AppController extends BaseController
         }
     }
 
-    #[\Override]
+    /**
+     * @inheritDoc
+     */
+    #[Override]
     public function beforeRedirect(EventInterface $event, $url, Response $response)
     {
         $previousRequest = new ServerRequest(['url' => $this->referer('/')]);
@@ -48,12 +53,9 @@ class AppController extends BaseController
     }
 
     /**
-     * Before render callback.
-     *
-     * @param \Cake\Event\EventInterface $event The beforeRender event.
-     * @return void
+     * @inheritDoc
      */
-    #[\Override]
+    #[Override]
     public function beforeRender(EventInterface $event)
     {
         parent::beforeRender($event);

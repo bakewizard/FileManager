@@ -1,31 +1,30 @@
 <?php
-
 declare(strict_types=1);
 
 namespace FileManager\Controller\Admin;
 
-use Exception;
 use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\DateTime;
+use Exception;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToRetrieveMetadata;
+use const UPLOAD_ERR_NO_FILE;
 
 class ManagerController extends AppController
 {
-
     /**
-     * Plugin page
-     * 
      * Displays the file manager.
      *
-     * @param string $path
+     * @param string $path The directory path.
+     * @return \Cake\Http\Response|void
      */
-    public function index($path = '')
+    public function index(string $path = '')
     {
         try {
             $content = $this->storage->listContents($path)->toArray();
         } catch (FilesystemException $e) {
             $this->Flash->error($e->getMessage());
+
             return $this->redirect(['action' => 'index', $path]);
         }
 
@@ -35,11 +34,11 @@ class ManagerController extends AppController
                 'name' => basename($item['path']),
                 'extension' => pathinfo($item['path'], PATHINFO_EXTENSION),
                 'path' => $item['path'],
-                'size' => ($item['type'] === 'file') ? $item['file_size'] : null,
+                'size' => $item['type'] === 'file' ? $item['file_size'] : null,
                 'modified' => DateTime::createFromTimestamp($item['last_modified'])->i18nFormat(),
                 'perms' => $this->getPermissions($this->fullPath . $item['path']),
                 'group' => $this->getGroup($this->fullPath . $item['path']),
-                'owner' => $this->getOwner($this->fullPath . $item['path'])
+                'owner' => $this->getOwner($this->fullPath . $item['path']),
             ];
         }, $content);
 
@@ -57,11 +56,12 @@ class ManagerController extends AppController
     }
 
     /**
-     * Displays the contents of a file.
+     * Displays the file manager.
      *
-     * @param string|null $path
+     * @param string $path The directory path.
+     * @return \Cake\Http\Response|void
      */
-    public function view($path = null)
+    public function view(?string $path = null)
     {
         try {
             if (!$this->storage->fileExists($path)) {
@@ -88,15 +88,17 @@ class ManagerController extends AppController
     /**
      * Creates a new directory.
      *
-     * @param string|null $path
+     * @param string|null $path The base path to create the directory in.
+     * @return \Cake\Http\Response|void
      */
-    public function create($path = null)
+    public function create(?string $path = null)
     {
         if ($this->request->is('post')) {
             $folderName = $this->request->getData('name');
 
             if (empty($folderName)) {
                 $this->Flash->error(__('Folder name cannot be empty'));
+
                 return $this->redirect(['action' => 'index', $path]);
             }
 
@@ -114,9 +116,10 @@ class ManagerController extends AppController
     /**
      * Removes a file or directory.
      *
-     * @param string $path
+     * @param string $path The file or directory path to remove.
+     * @return \Cake\Http\Response|void
      */
-    public function remove($path)
+    public function remove(string $path)
     {
         try {
             if ($this->storage->fileExists($path)) {
@@ -138,9 +141,10 @@ class ManagerController extends AppController
     /**
      * Renames a file or directory.
      *
-     * @param string $path
+     * @param string $path The current path of the file or directory.
+     * @return \Cake\Http\Response|void
      */
-    public function rename($path)
+    public function rename(string $path)
     {
         $name = basename($path);
 
@@ -148,6 +152,7 @@ class ManagerController extends AppController
             $newName = $this->request->getData('name');
             if (empty($newName)) {
                 $this->Flash->error(__('File name cannot be empty'));
+
                 return $this->redirect(['action' => 'index', dirname($path)]);
             }
 
@@ -167,16 +172,18 @@ class ManagerController extends AppController
     }
 
     /**
-     * Uploads files.
+     * Uploads files to a directory.
      *
-     * @param string|null $path
+     * @param string|null $path The path to upload files to.
+     * @return \Cake\Http\Response|void
      */
-    public function upload($path = null)
+    public function upload(?string $path = null)
     {
         $files = $this->request->getUploadedFiles()['files'] ?? [];
 
-        if (empty($files) || (count($files) === 1 && $files[0]->getError() === \UPLOAD_ERR_NO_FILE)) {
+        if (empty($files) || (count($files) === 1 && $files[0]->getError() === UPLOAD_ERR_NO_FILE)) {
             $this->Flash->error(__('No file was uploaded.'));
+
             return $this->redirect(['action' => 'index', $path]);
         }
 
@@ -212,28 +219,31 @@ class ManagerController extends AppController
     /**
      * Downloads a file.
      *
-     * @param string $path
+     * @param string $path The path to the file to be downloaded.
      * @return \Cake\Http\Response|null
      */
-    public function download($path)
+    public function download(string $path)
     {
         try {
             return $this->response->withFile($this->fullPath . $path, ['download' => true]);
         } catch (NotFoundException $e) {
             $this->Flash->error($e->getMessage());
         }
+
         return $this->redirect(['action' => 'index', dirname($path)]);
     }
 
     /**
-     * Sets the permissions of a file or a folder.
+     * Sets the permissions of a file or folder.
      *
-     * @param string $path
+     * @param string $path The file or directory path.
+     * @return \Cake\Http\Response|void
      */
-    public function setPermissions($path)
+    public function setPermissions(string $path)
     {
         if (!$this->storage->has($path)) {
             $this->Flash->error(__('File or directory not found.'));
+
             return $this->redirect(['action' => 'index', dirname($path)]);
         }
 
@@ -259,7 +269,7 @@ class ManagerController extends AppController
             $newPermissions |= !empty($permissions['others']['execute']) ? 0001 : 0;
 
             try {
-                if (!@chmod($this->fullPath . $path, $newPermissions)) {
+                if (!chmod($this->fullPath . $path, $newPermissions)) {
                     throw new Exception(__('Failed to change permissions.'));
                 }
                 $this->Flash->success(__('Permissions updated successfully.'));
@@ -276,20 +286,20 @@ class ManagerController extends AppController
         // Parse current permissions into an array for checkboxes
         $currentPerms = [
             'owner' => [
-                'read' => ($currentPermissions & 0400) ? true : false,
-                'write' => ($currentPermissions & 0200) ? true : false,
-                'execute' => ($currentPermissions & 0100) ? true : false
+                'read' => $currentPermissions & 0400 ? true : false,
+                'write' => $currentPermissions & 0200 ? true : false,
+                'execute' => $currentPermissions & 0100 ? true : false,
             ],
             'group' => [
-                'read' => ($currentPermissions & 0040) ? true : false,
-                'write' => ($currentPermissions & 0020) ? true : false,
-                'execute' => ($currentPermissions & 0010) ? true : false
+                'read' => $currentPermissions & 0040 ? true : false,
+                'write' => $currentPermissions & 0020 ? true : false,
+                'execute' => $currentPermissions & 0010 ? true : false,
             ],
             'others' => [
-                'read' => ($currentPermissions & 0004) ? true : false,
-                'write' => ($currentPermissions & 0002) ? true : false,
-                'execute' => ($currentPermissions & 0001) ? true : false
-            ]
+                'read' => $currentPermissions & 0004 ? true : false,
+                'write' => $currentPermissions & 0002 ? true : false,
+                'execute' => $currentPermissions & 0001 ? true : false,
+            ],
         ];
 
         $this->set(compact('path', 'currentPerms'));
@@ -298,50 +308,58 @@ class ManagerController extends AppController
     /**
      * Gets the permissions of a file.
      *
-     * @param string $file
-     * @return string|null
+     * @param string $file The full file path.
+     * @return string|null The file permissions in string format (e.g. -rw-r--r--), or null on failure.
      */
-    private function getPermissions(string $file): string|null
+    private function getPermissions(string $file): ?string
     {
         // Note: File permissions may not work with Flysystem, especially with cloud storage
-        $perms = @fileperms($file); // Suppress errors for non-existent files
+        $perms = fileperms($file); // Suppress errors for non-existent files
         if ($perms === false) {
             return null; // Indicate that permissions can't be retrieved
         }
 
         $info = '';
         switch ($perms & 0xF000) {
-            case 0xC000: $info = 's';
+            case 0xC000:
+                $info = 's';
                 break;
-            case 0xA000: $info = 'l';
+            case 0xA000:
+                $info = 'l';
                 break;
-            case 0x8000: $info = '-';
+            case 0x8000:
+                $info = '-';
                 break;
-            case 0x6000: $info = 'b';
+            case 0x6000:
+                $info = 'b';
                 break;
-            case 0x4000: $info = 'd';
+            case 0x4000:
+                $info = 'd';
                 break;
-            case 0x2000: $info = 'c';
+            case 0x2000:
+                $info = 'c';
                 break;
-            case 0x1000: $info = 'p';
+            case 0x1000:
+                $info = 'p';
                 break;
-            default: $info = 'u'; // Unknown
+            default:
+                $info = 'u'; // Unknown
         }
 
         // Owner
-        $info .= (($perms & 0x0100) ? 'r' : '-');
-        $info .= (($perms & 0x0080) ? 'w' : '-');
-        $info .= (($perms & 0x0040) ? (($perms & 0x0800) ? 's' : 'x') : (($perms & 0x0800) ? 'S' : '-'));
+        $info .= ($perms & 0x0100 ? 'r' : '-');
+        $info .= ($perms & 0x0080 ? 'w' : '-');
+        $info .= ($perms & 0x0040 ? ($perms & 0x0800 ? 's' : 'x') : ($perms & 0x0800 ? 'S' : '-'));
 
         // Group
-        $info .= (($perms & 0x0020) ? 'r' : '-');
-        $info .= (($perms & 0x0010) ? 'w' : '-');
-        $info .= (($perms & 0x0008) ? (($perms & 0x0400) ? 's' : 'x') : (($perms & 0x0400) ? 'S' : '-'));
+        $info .= ($perms & 0x0020 ? 'r' : '-');
+        $info .= ($perms & 0x0010 ? 'w' : '-');
+        $info .= ($perms & 0x0008 ? ($perms & 0x0400 ? 's' : 'x') : ($perms & 0x0400 ? 'S' : '-'));
 
         // World
-        $info .= (($perms & 0x0004) ? 'r' : '-');
-        $info .= (($perms & 0x0002) ? 'w' : '-');
-        $info .= (($perms & 0x0001) ? (($perms & 0x0200) ? 't' : 'x') : (($perms & 0x0200) ? 'T' : '-'));
+        $info .= ($perms & 0x0004 ? 'r' : '-');
+        $info .= ($perms & 0x0002 ? 'w' : '-');
+        $info .= ($perms & 0x0001 ? ($perms & 0x0200 ? 't' : 'x') : ($perms & 0x0200 ? 'T' : '-'));
 
         return $info;
     }
@@ -349,51 +367,53 @@ class ManagerController extends AppController
     /**
      * Gets the group of a file.
      *
-     * @param string $path
-     * @return string|null
+     * @param string $path The full file path.
+     * @return string|null The group name or null if unavailable.
      */
-    private function getGroup($path): string|null
+    private function getGroup(string $path): ?string
     {
         if (!function_exists('posix_getgrgid')) {
             return null;
         }
 
-        $groupId = @filegroup($path);
+        $groupId = filegroup($path);
         if (!is_int($groupId)) {
             return null;
         }
 
         $groupInfo = posix_getgrgid($groupId);
+
         return $groupInfo['name'] ?? null;
     }
 
     /**
      * Gets the owner of a file.
      *
-     * @param string $path
-     * @return string|null
+     * @param string $path The full file path.
+     * @return string|null The owner name or null if unavailable.
      */
-    private function getOwner($path): string|null
+    private function getOwner(string $path): ?string
     {
         if (!function_exists('posix_getpwuid')) {
             return null;
         }
 
-        $ownerId = @fileowner($path);
+        $ownerId = fileowner($path);
         if (!is_int($ownerId)) {
             return null;
         }
 
         $userInfo = posix_getpwuid($ownerId);
+
         return $userInfo['name'] ?? null;
     }
 
     /**
      * Checks if a file is a text file.
      *
-     * @param string $filePath
-     * @param int $sampleSize
-     * @return bool
+     * @param string $filePath The file path.
+     * @param int $sampleSize The number of bytes to sample.
+     * @return bool True if the file is text, false otherwise.
      */
     private function isTextFile(string $filePath, int $sampleSize = 512): bool
     {
@@ -419,7 +439,7 @@ class ManagerController extends AppController
             // Check for binary characters (non-printable ASCII excluding common control characters)
             $textPattern = '/^[\x09\x0A\x0D\x20-\x7E\xA0-\xFF]*$/';
 
-            return (bool) preg_match($textPattern, $sample);
+            return (bool)preg_match($textPattern, $sample);
         } catch (FilesystemException $e) {
             // Handle any errors (e.g., file not found, permission issues)
             return false;
