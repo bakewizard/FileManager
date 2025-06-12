@@ -6,12 +6,19 @@ namespace FileManager\Controller\Admin;
 use App\Controller\Admin\AppController;
 use Override;
 
+/**
+ * @property \Search\Controller\Component\SearchComponent $Search
+ * @property \Authentication\Controller\Component\AuthenticationComponent $Authentication
+ * @property \Authorization\Controller\Component\AuthorizationComponent $Authorization
+ */
 class DashboardController extends AppController
 {
     /**
      * Plugin dashboard
      *
      * Displays the plugin dashboard
+     *
+     * @return void
      */
     public function index()
     {
@@ -22,7 +29,7 @@ class DashboardController extends AppController
      *
      * Displays/Sets the plugin settings
      *
-     * @return \Cake\Http\Response|null
+     * @return \Cake\Http\Response|void
      */
     #[Override]
     public function settings()

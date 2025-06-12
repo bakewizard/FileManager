@@ -10,6 +10,11 @@ use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToRetrieveMetadata;
 use const UPLOAD_ERR_NO_FILE;
 
+/**
+ * @property \Search\Controller\Component\SearchComponent $Search
+ * @property \Authentication\Controller\Component\AuthenticationComponent $Authentication
+ * @property \Authorization\Controller\Component\AuthorizationComponent $Authorization
+ */
 class ManagerController extends AppController
 {
     /**
@@ -63,8 +68,9 @@ class ManagerController extends AppController
      * @param string $path The directory path.
      * @return \Cake\Http\Response|void
      */
-    public function view(?string $path = null)
+    public function view(string $path)
     {
+        $file = null;
         try {
             if (!$this->storage->fileExists($path)) {
                 return $this->redirect(['action' => 'index', dirname($path)]);
@@ -79,6 +85,9 @@ class ManagerController extends AppController
                 $file['contents'] = nl2br(htmlspecialchars($this->storage->read($path)));
             }
         } catch (UnableToRetrieveMetadata $e) {
+            if (!is_array($file)) {
+                $file = [];
+            }
             $file['mime'] = 'Unknown';
         } catch (FilesystemException $e) {
             $this->Flash->error($e->getMessage());

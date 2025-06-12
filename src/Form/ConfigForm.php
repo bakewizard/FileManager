@@ -15,10 +15,7 @@ use Override;
 class ConfigForm extends Form
 {
     /**
-     * Builds the schema for the modelless form
-     *
-     * @param \Cake\Form\Schema $schema From schema
-     * @return $this
+     * @inheritDoc
      */
     #[Override]
     protected function _buildSchema(Schema $schema): Schema
@@ -27,10 +24,7 @@ class ConfigForm extends Form
     }
 
     /**
-     * Form validation builder
-     *
-     * @param \Cake\Validation\Validator $validator to use against the form
-     * @return \Cake\Validation\Validator
+     * @inheritDoc
      */
     #[Override]
     public function validationDefault(Validator $validator): Validator
@@ -48,9 +42,7 @@ class ConfigForm extends Form
     }
 
     /**
-     * Defines what to execute once the From is being processed
-     *
-     * @return bool
+     * @inheritDoc
      */
     #[Override]
     protected function _execute(array $data): bool

@@ -1,4 +1,7 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
 $stack = '';
 $crumbs = explode('/', $this->request->getParam('pass')[0]);
 $crumbsCount = count($crumbs);

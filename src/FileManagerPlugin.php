@@ -36,7 +36,7 @@ class FileManagerPlugin extends CmsPlugin
     public function routes(RouteBuilder $routes): void
     {
         $routes->prefix('Admin', function (RouteBuilder $builder): void {
-            $builder->plugin($this->name, function (RouteBuilder $builder): void {
+            $builder->plugin($this->name ?? 'FileManager', function (RouteBuilder $builder): void {
                 $builder->applyMiddleware('auth');
                 $builder->connect('/', ['controller' => 'Manager']);
                 $builder->connect('/{controller}/{action}/**', []);

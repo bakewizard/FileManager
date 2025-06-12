@@ -1,3 +1,10 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var string $name
+ * @var mixed $path
+ */
+?>
 <?php $this->assign('page', __('File Manager')); ?>
 <div class="card">
     <div class="card-header">

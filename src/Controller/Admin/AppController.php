@@ -13,9 +13,14 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemException;
 use Override;
 
+/**
+ * @property \Search\Controller\Component\SearchComponent $Search
+ * @property \Authentication\Controller\Component\AuthenticationComponent $Authentication
+ * @property \Authorization\Controller\Component\AuthorizationComponent $Authorization
+ */
 class AppController extends BaseController
 {
-    protected ?Filesystem $storage = null;
+    protected Filesystem $storage;
     protected ?string $basePath = null;
     protected ?string $fullPath = null;
 
@@ -47,6 +52,9 @@ class AppController extends BaseController
     {
         $previousRequest = new ServerRequest(['url' => $this->referer('/')]);
         if ($previousRequest->getQuery('window') || $previousRequest->getQuery('editor')) {
+            if (!is_array($url)) {
+                $url = ['controller' => $this->request->getParam('controller'), 'action' => $this->request->getParam('action')];
+            }
             $url['?'] = $previousRequest->getQueryParams();
             $event->setResult($response->withLocation(Router::url($url, true)));
         }

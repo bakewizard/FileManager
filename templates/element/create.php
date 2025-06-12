@@ -1,3 +1,9 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var mixed $path
+ */
+?>
 <?= $this->Form->create(null, ['url' => ['action' => 'create', $path], 'type' => 'file']); ?>
 <?=
 

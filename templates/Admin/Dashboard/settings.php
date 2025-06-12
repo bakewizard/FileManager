@@ -1,3 +1,9 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var mixed $settings
+ */
+?>
 <?php $this->assign('page', __('FileManager Settings')); ?>
 <div class="card card-success card-outline">
     <div class="card-header">
