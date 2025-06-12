@@ -13,7 +13,9 @@ use const UPLOAD_ERR_NO_FILE;
 class ManagerController extends AppController
 {
     /**
-     * Displays the file manager.
+     * Plugin page
+     *
+     * Displays the file manager
      *
      * @param string $path The directory path.
      * @return \Cake\Http\Response|void
