@@ -27,11 +27,11 @@
 
     <?php if ($this->request->getQuery('window')): ?>
         <div class="card-header">
-            <button class="btn btn-success" onclick="returnFileUrl('<?= $file['url'] ?>', false)"><?= __('Select file') ?></button>
+            <button class="btn btn-success" onclick="returnFileUrl('<?= $file['url'] ?>', '<?= $file['path'] ?>', false)"><?= __('Select file') ?></button>
         </div>
     <?php elseif ($this->request->getQuery('editor')): ?>
         <div class="card-header">
-            <button class="btn btn-success" onclick="returnFileUrl('<?= $this->Url->build($file['url'], ['fullBase' => true]) ?>', true)"><?= __('Select file') ?></button>
+            <button class="btn btn-success" onclick="returnFileUrl('<?= $this->Url->build($file['url'], ['fullBase' => true]) ?>', '<?= $file['path'] ?>', true)"><?= __('Select file') ?></button>
         </div>
     <?php endif; ?>
 

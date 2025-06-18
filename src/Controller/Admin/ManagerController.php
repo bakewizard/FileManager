@@ -77,6 +77,7 @@ class ManagerController extends AppController
             }
 
             $file['name'] = basename($path);
+            $file['path'] = rtrim(WWW_ROOT, DS) . $this->basePath . $path;
             $file['url'] = $this->basePath . $path;
             $file['size'] = $this->storage->fileSize($path);
             $file['mime'] = $this->storage->mimeType($path);
