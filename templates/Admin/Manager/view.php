@@ -5,7 +5,7 @@
  * @var mixed $path
  */
 ?>
-<?= $this->Html->script('FileManager.main', ['block' => true, 'type' => 'module']) ?>
+<?= $this->Html->script('FileManager.main', ['block' => true]) ?>
 <?php $this->assign('page', __('File Manager')); ?>
 <div class="card">
     <div class="card-header">
