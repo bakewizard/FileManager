@@ -1,6 +1,6 @@
 # FileManager Plugin for BakeKit
 
-The `FileManager` plugin provides file upload and media management for [BakeKit CMS](https://github.com/bakewizard/BakeKit).
+The `FileManager` plugin provides file upload and media management for [BakeKit](https://github.com/bakewizard/BakeKit).
 
 ## Features
 
