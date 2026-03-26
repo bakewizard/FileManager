@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace FileManager\Controller\Admin;
 
+use App\Attribute\Resource;
 use App\Controller\Admin\AppController;
 use Override;
 
@@ -20,6 +21,7 @@ class DashboardController extends AppController
      *
      * @return void
      */
+    #[Resource(label: 'File manager dashboard')]
     public function index()
     {
     }
@@ -32,6 +34,7 @@ class DashboardController extends AppController
      * @return \Cake\Http\Response|void
      */
     #[Override]
+    #[Resource(label: 'File manager settings')]
     public function settings()
     {
         parent::settings();

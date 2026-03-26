@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace FileManager\Controller\Admin;
 
+use App\Attribute\Resource;
 use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\DateTime;
 use Exception;
@@ -25,6 +26,7 @@ class ManagerController extends AppController
      * @param string $path The directory path.
      * @return \Cake\Http\Response|void
      */
+    #[Resource(label: 'Show file manager')]
     public function index(string $path = '')
     {
         try {
@@ -68,6 +70,7 @@ class ManagerController extends AppController
      * @param string $path The directory path.
      * @return \Cake\Http\Response|void
      */
+    #[Resource(label: 'View selected file')]
     public function view(string $path)
     {
         $file = null;
@@ -103,6 +106,7 @@ class ManagerController extends AppController
      * @param string|null $path The base path to create the directory in.
      * @return \Cake\Http\Response|void
      */
+    #[Resource(label: 'Create a folder')]
     public function create(?string $path = null)
     {
         if ($this->request->is('post')) {
@@ -131,6 +135,7 @@ class ManagerController extends AppController
      * @param string $path The file or directory path to remove.
      * @return \Cake\Http\Response|void
      */
+    #[Resource(label: 'Remove a file/folder')]
     public function remove(string $path)
     {
         try {
@@ -156,6 +161,7 @@ class ManagerController extends AppController
      * @param string $path The current path of the file or directory.
      * @return \Cake\Http\Response|void
      */
+    #[Resource(label: 'Rename a file/folder')]
     public function rename(string $path)
     {
         $name = basename($path);
@@ -189,6 +195,7 @@ class ManagerController extends AppController
      * @param string|null $path The path to upload files to.
      * @return \Cake\Http\Response|void
      */
+    #[Resource(label: 'Upload a file')]
     public function upload(?string $path = null)
     {
         $files = $this->request->getUploadedFiles()['files'] ?? [];
@@ -234,6 +241,7 @@ class ManagerController extends AppController
      * @param string $path The path to the file to be downloaded.
      * @return \Cake\Http\Response|null
      */
+    #[Resource(label: 'Download a file')]
     public function download(string $path)
     {
         try {
@@ -251,6 +259,7 @@ class ManagerController extends AppController
      * @param string $path The file or directory path.
      * @return \Cake\Http\Response|void
      */
+    #[Resource(label: 'Set a file/folder permissions')]
     public function setPermissions(string $path)
     {
         if (!$this->storage->has($path)) {
