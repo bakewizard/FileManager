@@ -21,7 +21,6 @@ class DashboardController extends AppController
      *
      * @return void
      */
-    #[Resource(label: 'File manager dashboard')]
     public function index()
     {
     }
