@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace FileManager;
 
-use App\Core\CmsPlugin;
+use App\Core\BasePlugin;
 use Cake\Core\Configure;
 use Cake\Core\PluginApplicationInterface;
 use Cake\Routing\Route\DashedRoute;
@@ -13,7 +13,7 @@ use Override;
 /**
  * Plugin for FileManager
  */
-class FileManagerPlugin extends CmsPlugin
+class FileManagerPlugin extends BasePlugin
 {
     protected ?string $name = 'FileManager';
     protected bool $consoleEnabled = false;
